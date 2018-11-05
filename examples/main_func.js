@@ -1,17 +1,23 @@
 var container, stats;
 
-    var camera, scene, renderer;
+    var camera, scene, renderer, controls;
 
-    var mouseX = 0, mouseY = 0;
+    var controls;
+
+    var room_1 = null;
+
+    var point_1 = null;
+    var point_2 = null;
 
     var windowHalfX = window.innerWidth / 2;
     var windowHalfY = window.innerHeight / 2;
+
+    var counter = 0;
 
     var isPano = true;
 
     init();
     animate();
-
 
     function init() {
 
@@ -19,7 +25,6 @@ var container, stats;
         document.body.appendChild( container );
 
         camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-        camera.position.z = 250;
 
         // scene
 
@@ -31,6 +36,9 @@ var container, stats;
         var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
         camera.add( pointLight );
         scene.add( camera );
+        camera.position.z = 2;
+        
+        
 
         var geometry = new THREE.SphereBufferGeometry( 500, 60, 40 );
         // invert the geometry on the x-axis so that all of the faces point inward
@@ -57,42 +65,50 @@ var container, stats;
 
         };
 
-        var onError = function ( xhr ) { };
+        var onError = function () { };
 
-        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+		THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
 
-        
+        var objLoader = new THREE.OBJLoader().load(
+            'models/layout.obj',
+            function (room) {
+                room_1 = room.children[0];
 
-        new THREE.MTLLoader()
-            .setPath( 'models/obj/male02/' )
-            .load( 'male02_dds.mtl', function ( materials ) {
+                //can add shader here, make a material
+                var material = new THREE.MeshPhongMaterial( {color: 0x333fff , transparent:true, opacity:0});
+                
+                room_1.scale = new THREE.Vector3(90,90,90);
+                room_1.position.y = -0.5;
+                room_1.rotation.y = -30;
+                room_1.material = material;
+                scene.add(room_1);
+            }
+        );
 
-                materials.preload();
-
-                new THREE.OBJLoader()
-                    .setMaterials( materials )
-                    .setPath( 'models/obj/male02/' )
-                    .load( 'male02.obj', function ( object ) {
-
-                        object.position.y = - 95;
-                        scene.add( object );
-
-                    }, onProgress, onError );
-
-            } );
-
-        //
+        //road points
+        var p1 = new THREE.SphereGeometry(3, 32, 32);
+        var material_1 = new THREE.MeshBasicMaterial( {color: 0xffff00});
+        point_1 = new THREE.Mesh(p1, material_1);
+        point_1.position.x = 0.5;
+        scene.add(point_1);
 
         renderer = new THREE.WebGLRenderer();
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
         container.appendChild( renderer.domElement );
+        
+        
+        controls = new THREE.OrbitControls(camera);
+        controls.target = new THREE.Vector3(0, 0, 0);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.autoRotate = false;
+        controls.enableZoom = false;
+        
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
 
         document.addEventListener("keyup", onDocumentKeyUp, false);
-
-        //
 
         window.addEventListener( 'resize', onWindowResize, false );
 
@@ -114,6 +130,8 @@ var container, stats;
     //
 
     function animate() {
+        
+        controls.update();
 
         requestAnimationFrame( animate );
         render();
@@ -124,24 +142,9 @@ var container, stats;
         var keyCode = event.which;
         
         if(keyCode == 90) {
-            isPano = !isPano;
+            isPano = false
         } 
-        else if (keyCode == 87) {
-            camera.position.z -= 0.5;
-            isPano = false;
-        }
-        else if (keyCode == 65) {
-            camera.position.x -= 0.5;
-            isPano = false;
-        }
-        else if (keyCode == 83) {
-            camera.position.z += 0.5;
-            isPano = false;
-        }
-        else if (keyCode == 68) {
-            camera.position.x += 0.5;
-            isPano = false;
-        }
+        
         render();
     };
 
@@ -149,48 +152,34 @@ var container, stats;
         var keyCode = event.which;
         
         if(keyCode == 90) {
-            isPano = !isPano;
+            isPano = true;
         } 
-        else if (keyCode == 87) {
-            camera.position.z -= 0.5;
-            isPano = true;
-        }
-        else if (keyCode == 65) {
-            camera.position.x -= 0.5;
-            isPano = true;
-        }
-        else if (keyCode == 83) {
-            camera.position.z += 0.5;
-            isPano = true;
-        }
-        else if (keyCode == 68) {
-            camera.position.x += 0.5;
-            isPano = true;
-        }
+        
         render();
     };
 
-    function movement() {
+    function moveCamera() {
 
     }
 
     function render() {
-
-        
-
         if(isPano == true) {
-    
+            room_1.material.opacity = 0;
+            room_1.material.transparent = true;
             
             //object[0].visible = false;
-            mesh.material.opacity = 255;
+            mesh.material.opacity = 1;
             mesh.material.transparent = false;
         }
         else if(isPano == false) {
-            
+            room_1.material.opacity = 1;
+            room_1.material.transparent = false;
+
             //object[0].visible = true;
             mesh.material.opacity = 0;
             mesh.material.transparent = true;
         }
+
 
         renderer.render( scene, camera );
 
