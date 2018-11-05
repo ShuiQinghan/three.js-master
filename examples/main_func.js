@@ -12,9 +12,17 @@ var container, stats;
     var windowHalfX = window.innerWidth / 2;
     var windowHalfY = window.innerHeight / 2;
 
+    var raycaster;
+
+    var mouse = new THREE.Vector2();
+
+    var moveFrom, moveTo;
+
     var counter = 0;
 
     var isPano = true;
+
+    var selectedObjects = new Map(); 
 
     init();
     animate();
@@ -38,7 +46,7 @@ var container, stats;
         scene.add( camera );
         camera.position.z = 2;
         
-        
+        raycaster = new THREE.Raycaster();
 
         var geometry = new THREE.SphereBufferGeometry( 500, 60, 40 );
         // invert the geometry on the x-axis so that all of the faces point inward
@@ -86,29 +94,43 @@ var container, stats;
         );
 
         //road points
-        var p1 = new THREE.SphereGeometry(3, 32, 32);
-        var material_1 = new THREE.MeshBasicMaterial( {color: 0xffff00});
+        var p1 = new THREE.SphereGeometry(0.5, 32, 32);
+        var material_1 = new THREE.MeshPhongMaterial( {color: 0xffff00});
         point_1 = new THREE.Mesh(p1, material_1);
-        point_1.position.x = 0.5;
+        point_1.position.x = 0;
+        point_1.position.y = -2.5;
+        point_1.position.z = -6;
         scene.add(point_1);
+
+        var p2 = new THREE.SphereGeometry(0.5, 32, 32);
+        var material_2 = new THREE.MeshPhongMaterial( {color: 0xffff00});
+        point_2 = new THREE.Mesh(p2, material_2);
+        point_2.position.x = -3;
+        point_2.position.y = -2.5;
+        point_2.position.z = 5;
+        scene.add(point_2);
 
         renderer = new THREE.WebGLRenderer();
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
         container.appendChild( renderer.domElement );
         
-        
+        //control panel
         controls = new THREE.OrbitControls(camera);
         controls.target = new THREE.Vector3(0, 0, 0);
         controls.enableDamping = true;
-        controls.dampingFactor = 0.25;
+        controls.dampingFactor = 0.15;
         controls.autoRotate = false;
+        controls.rotateSpeed = 0.03;
         controls.enableZoom = false;
+        controls.enablePan = false;
         
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
 
         document.addEventListener("keyup", onDocumentKeyUp, false);
+
+        window.addEventListener( 'mousemove', onMouseMove, false );
 
         window.addEventListener( 'resize', onWindowResize, false );
 
@@ -158,11 +180,45 @@ var container, stats;
         render();
     };
 
+    function onMouseMove( event ) {
+
+        event.preventDefault();
+
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        raycaster.setFromCamera( mouse, camera );
+
+        // calculate objects intersecting the picking ray
+        var intersects = raycaster.intersectObjects( point_1 );
+
+        point_1.raycast(raycaster, intersects);
+        if(intersects.length > 0) {
+            point_1.material.color.set(0x666fff);
+        }
+        else {
+            point_1.material.color.set(0xffff00);
+        }
+        
+        intersects = raycaster.intersectObjects( point_2 );
+
+        point_2.raycast(raycaster, intersects);
+        if(intersects.length > 0) {
+            point_2.material.color.set(0x666fff);
+        }
+        else {
+            point_2.material.color.set(0xffff00);
+        }
+        
+        render();
+    }
+
     function moveCamera() {
 
     }
 
     function render() {
+
         if(isPano == true) {
             room_1.material.opacity = 0;
             room_1.material.transparent = true;
