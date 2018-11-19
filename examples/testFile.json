@@ -1,0 +1,25 @@
+{
+    "thismodel" : 1,
+    "mainroomid" : 0,
+    "roomNum" : 2,
+    "0" : {
+        "x" : -3, "y" : -3, "r" : 0.7,
+        "doortNum" : 1,
+        "doorID" : {
+            "0" : {
+               "toroomID" : 1 ,
+               "door_x" : 2, "door_y" : 3
+            }
+        }
+    },
+    "1" : {
+        "x" : 3, "y" : 3, "r" : 0.3,
+        "doortNum" : 1,
+        "doorID" : {
+            "0" : {
+                "toroomID" : 0 ,
+                "door_x" : 1, "door_y" : 1.5
+            }
+        }
+    }
+}
