@@ -3,7 +3,7 @@
     "mainroomid" : 0,
     "roomNum" : 2,
     "0" : {
-        "x" : -3, "y" : -3, "r" : 0.7,
+        "x" : -3, "y" : -3, "r" : 0.4,
         "doortNum" : 1,
         "doorID" : {
             "0" : {

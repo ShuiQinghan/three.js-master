@@ -2,25 +2,23 @@ var container, stats;
 
 var camera, scene, renderer, controls;
 
-var mesh;
-
 var controls;
 
+////these two groups are mean to store all pano and model in the house
 var rooms = new THREE.Group();
 var panos = new THREE.Group();
+var doors = new THREE.Group();
 
-var point_1 = null;
-var point_2 = null;
-
-var pointIsSelect_1 = false;
-var pointIsSelect_2 = false;
-
+//////calculation for window
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
-var raycaster;
-
+//////for mouse control
 var mouse = new THREE.Vector2();
+var oldmouse = new THREE.Vector2();
+var mouseisClicking = false;
+
+var raycaster;
 
 var moveFrom, moveTo;
 
@@ -38,7 +36,7 @@ var selectedObjects = new Map();
 
 var jsonData = null;
 
-var roomNow = "111111";
+var roomNow = 0;
 
 var loadJsonFinish = false;
 
@@ -56,7 +54,7 @@ function init() {
     ////put panorama and obj model initial functions inside of jsonloader callback function due to ascynchronize problem
     loadJsonData();
 
-    ////initial functions
+    ////initial functions for those don't need json data
     initCamera();
     initScene();
     initRenderer();
@@ -103,7 +101,7 @@ function loadPano(i) {
     var material = new THREE.MeshBasicMaterial( {
         map: new THREE.TextureLoader().load( 'models/' + jsonData.thismodel + '/' + i + '/color.png' )
     } );
-    mesh = new THREE.Mesh( geometry, material );
+    var mesh = new THREE.Mesh( geometry, material );
     panos.add(mesh);
 }
 
@@ -123,8 +121,8 @@ function loadRoom(i) {
             var room_data = room.children[0];
 
             //can add shader here, make a material
-            var material = new THREE.MeshPhongMaterial( {color: 0x333fff , transparent:true, opacity:0});
-            
+            var material = new THREE.MeshPhongMaterial( {color: 0x333fff , transparent:false, opacity:1});
+
             //room_data.scale = new THREE.Vector3(1,1,1);
             
             /////set position and rotation here
@@ -203,6 +201,7 @@ function onMouseMove( event ) {
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     
+    if()
 
     /*
     raycaster.setFromCamera( mouse, camera );
@@ -237,7 +236,11 @@ function onMouseMove( event ) {
 }
 
 function onMouseClick(event) {
+    ////record old mouse
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     
+    oldmouse = mouse;
 }
 
 function moveCamera() {
