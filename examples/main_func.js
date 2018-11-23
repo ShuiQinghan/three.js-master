@@ -102,6 +102,10 @@ function loadPano(i) {
         map: new THREE.TextureLoader().load( 'models/' + jsonData.thismodel + '/' + i + '/color.png' )
     } );
     var mesh = new THREE.Mesh( geometry, material );
+    if(roomNow != i) {
+        mesh.material.transparent = true;
+        mesh.material.opacity = 0;
+    }
     panos.add(mesh);
 }
 
@@ -121,13 +125,15 @@ function loadRoom(i) {
             var room_data = room.children[0];
 
             //can add shader here, make a material
-            var material = new THREE.MeshPhongMaterial( {color: 0x333fff , transparent:false, opacity:1});
+            //if you wanna know how to add a shader as a amaterial, ckeck three.js website
+            
+            var material = new THREE.MeshPhongMaterial( {color: 0x333fff , transparent:true, opacity:0});
 
-            //room_data.scale = new THREE.Vector3(1,1,1);
             
             /////set position and rotation here
             /////parse json inform we need first
             var roomData = jsonData[i.toString()];
+            console.log("Room Data from local json is " + roomData);
 
             /////set position and rotation
             room_data.position.x = roomData.x;
@@ -201,7 +207,7 @@ function onMouseMove( event ) {
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     
-    if()
+    //if()
 
     /*
     raycaster.setFromCamera( mouse, camera );
